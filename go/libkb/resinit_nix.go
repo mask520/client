@@ -5,7 +5,12 @@
 
 package libkb
 
+// /* Bionic has res_init() but it's not in any header */
+// #ifdef __BIONIC__
+// int res_init (void);
+// #else
 // #include<resolv.h>
+// #endif
 import "C"
 
 func resInit() {
