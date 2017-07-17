@@ -1,11 +1,12 @@
 // Copyright 2015 Keybase, Inc. All rights reserved. Use of
 // this source code is governed by the included BSD license.
 
-// +build !windows,!android
+// +build android
 
 package libkb
 
-// #include<resolv.h>
+// /* Bionic has res_init() but it's not in any header */
+// int res_init (void);
 import "C"
 
 func resInit() {
