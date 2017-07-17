@@ -145,6 +145,15 @@ func NewClient(e *Env, config *ClientConfig, needCookie bool) *Client {
 
 	xprt.Dial = func(network, addr string) (c net.Conn, err error) {
 		c, err = net.Dial(network, addr)
+		// If we get a DNS error, it could be because glibc has cached an old
+		// version of /etc/resolv.conf. The res_init() libc function busts that
+		// cache and keeps us from getting stuck in a state where DNS requests
+		// keep failing even though the network is up. This is similar to what
+		// the Rust standard library does:
+		// https://github.com/rust-lang/rust/blob/028569ab1b/src/libstd/sys_common/net.rs#L186-L190
+		// Note that we still propagate the error here, and we expect callers
+		// to retry.
+		resInitIfDNSError(err)
 		if err != nil {
 			return c, err
 		}
