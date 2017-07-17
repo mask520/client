@@ -3704,6 +3704,21 @@ export function teamsTeamRenameRpcPromise (request: $Exact<requestCommon & reque
   return new Promise((resolve, reject) => engineRpcOutgoing('keybase.1.teams.teamRename', request, (error, result) => error ? reject(error) : resolve(result)))
 }
 
+export function teamsTeamTreeRpc (request: Exact<requestCommon & {callback?: ?(err: ?any, response: teamsTeamTreeResult) => void} & {param: teamsTeamTreeRpcParam}>) {
+  engineRpcOutgoing('keybase.1.teams.teamTree', request)
+}
+
+export function teamsTeamTreeRpcChannelMap (configKeys: Array<string>, request: $Exact<requestCommon & {callback?: ?(err: ?any, response: teamsTeamTreeResult) => void} & {param: teamsTeamTreeRpcParam}>): EngineChannel {
+  return engine()._channelMapRpcHelper(configKeys, 'keybase.1.teams.teamTree', request)
+}
+export function teamsTeamTreeRpcChannelMapOld (channelConfig: ChannelConfig<*>, request: $Exact<requestCommon & {callback?: ?(err: ?any, response: teamsTeamTreeResult) => void} & {param: teamsTeamTreeRpcParam}>): ChannelMap<*> {
+  return _channelMapRpcHelper(channelConfig, (incomingCallMap, callback) => { engineRpcOutgoing('keybase.1.teams.teamTree', request, callback, incomingCallMap) })
+}
+
+export function teamsTeamTreeRpcPromise (request: $Exact<requestCommon & {callback?: ?(err: ?any, response: teamsTeamTreeResult) => void} & {param: teamsTeamTreeRpcParam}>): Promise<teamsTeamTreeResult> {
+  return new Promise((resolve, reject) => engineRpcOutgoing('keybase.1.teams.teamTree', request, (error, result) => error ? reject(error) : resolve(result)))
+}
+
 export function testPanicRpc (request: Exact<requestCommon & requestErrorCallback & {param: testPanicRpcParam}>) {
   engineRpcOutgoing('keybase.1.test.panic', request)
 }
@@ -6125,6 +6140,15 @@ export type TeamSigChainState = {
   activeInvites: {[key: string]: TeamInvite},
 }
 
+export type TeamTreeEntry = {
+  name: TeamName,
+  admin: boolean,
+}
+
+export type TeamTreeResult = {
+  entries?: ?Array<TeamTreeEntry>,
+}
+
 export type Test = {
   reply: string,
 }
@@ -7290,6 +7314,10 @@ export type teamsTeamRenameRpcParam = Exact<{
   newName: TeamName
 }>
 
+export type teamsTeamTreeRpcParam = Exact<{
+  name: TeamName
+}>
+
 export type testPanicRpcParam = Exact<{
   message: string
 }>
@@ -7535,6 +7563,7 @@ type teamsLoadTeamPlusApplicationKeysResult = TeamPlusApplicationKeys
 type teamsTeamAddMemberResult = TeamAddMemberResult
 type teamsTeamGetResult = TeamDetails
 type teamsTeamListResult = TeamList
+type teamsTeamTreeResult = TeamTreeResult
 type testTestCallbackResult = string
 type testTestResult = Test
 type tlfCompleteAndCanonicalizePrivateTlfNameResult = CanonicalTLFNameAndIDWithBreaks
@@ -7771,6 +7800,7 @@ export type rpc =
   | teamsTeamListRpc
   | teamsTeamRemoveMemberRpc
   | teamsTeamRenameRpc
+  | teamsTeamTreeRpc
   | testPanicRpc
   | testTestCallbackRpc
   | testTestRpc

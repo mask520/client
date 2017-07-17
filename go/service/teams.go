@@ -23,6 +23,8 @@ type TeamsHandler struct {
 	connID libkb.ConnectionID
 }
 
+var _ keybase1.TeamsInterface = (*TeamsHandler)(nil)
+
 func NewTeamsHandler(xp rpc.Transporter, id libkb.ConnectionID, g *globals.Context, gregor *gregorHandler) *TeamsHandler {
 	return &TeamsHandler{
 		BaseHandler:  NewBaseHandler(xp),
@@ -113,6 +115,10 @@ func (h *TeamsHandler) TeamRename(ctx context.Context, arg keybase1.TeamRenameAr
 
 func (h *TeamsHandler) TeamAcceptInvite(ctx context.Context, arg keybase1.TeamAcceptInviteArg) error {
 	return teams.AcceptInvite(ctx, h.G().ExternalG(), arg.Token)
+}
+
+func (h *TeamsHandler) TeamTree(ctx context.Context, arg keybase1.TeamTreeArg) (res keybase1.TeamTreeResult, err error) {
+	return teams.TeamTree(ctx, h.G().ExternalG(), arg)
 }
 
 func (h *TeamsHandler) LoadTeamPlusApplicationKeys(netCtx context.Context, arg keybase1.LoadTeamPlusApplicationKeysArg) (keybase1.TeamPlusApplicationKeys, error) {

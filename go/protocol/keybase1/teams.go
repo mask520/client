@@ -933,6 +933,35 @@ func (o TeamAddMemberResult) DeepCopy() TeamAddMemberResult {
 	}
 }
 
+type TeamTreeResult struct {
+	Entries []TeamTreeEntry `codec:"entries" json:"entries"`
+}
+
+func (o TeamTreeResult) DeepCopy() TeamTreeResult {
+	return TeamTreeResult{
+		Entries: (func(x []TeamTreeEntry) []TeamTreeEntry {
+			var ret []TeamTreeEntry
+			for _, v := range x {
+				vCopy := v.DeepCopy()
+				ret = append(ret, vCopy)
+			}
+			return ret
+		})(o.Entries),
+	}
+}
+
+type TeamTreeEntry struct {
+	Name  TeamName `codec:"name" json:"name"`
+	Admin bool     `codec:"admin" json:"admin"`
+}
+
+func (o TeamTreeEntry) DeepCopy() TeamTreeEntry {
+	return TeamTreeEntry{
+		Name:  o.Name.DeepCopy(),
+		Admin: o.Admin,
+	}
+}
+
 type TeamCreateArg struct {
 	SessionID int      `codec:"sessionID" json:"sessionID"`
 	Name      TeamName `codec:"name" json:"name"`
@@ -1087,6 +1116,18 @@ func (o TeamAcceptInviteArg) DeepCopy() TeamAcceptInviteArg {
 	}
 }
 
+type TeamTreeArg struct {
+	SessionID int      `codec:"sessionID" json:"sessionID"`
+	Name      TeamName `codec:"name" json:"name"`
+}
+
+func (o TeamTreeArg) DeepCopy() TeamTreeArg {
+	return TeamTreeArg{
+		SessionID: o.SessionID,
+		Name:      o.Name.DeepCopy(),
+	}
+}
+
 type LoadTeamPlusApplicationKeysArg struct {
 	SessionID   int             `codec:"sessionID" json:"sessionID"`
 	Id          TeamID          `codec:"id" json:"id"`
@@ -1115,6 +1156,7 @@ type TeamsInterface interface {
 	TeamEditMember(context.Context, TeamEditMemberArg) error
 	TeamRename(context.Context, TeamRenameArg) error
 	TeamAcceptInvite(context.Context, TeamAcceptInviteArg) error
+	TeamTree(context.Context, TeamTreeArg) (TeamTreeResult, error)
 	// * loadTeamPlusApplicationKeys loads team information for applications like KBFS and Chat.
 	// * If refreshers are non-empty, then force a refresh of the cache if the requirements
 	// * of the refreshers aren't met.
@@ -1301,6 +1343,22 @@ func TeamsProtocol(i TeamsInterface) rpc.Protocol {
 				},
 				MethodType: rpc.MethodCall,
 			},
+			"teamTree": {
+				MakeArg: func() interface{} {
+					ret := make([]TeamTreeArg, 1)
+					return &ret
+				},
+				Handler: func(ctx context.Context, args interface{}) (ret interface{}, err error) {
+					typedArgs, ok := args.(*[]TeamTreeArg)
+					if !ok {
+						err = rpc.NewTypeError((*[]TeamTreeArg)(nil), args)
+						return
+					}
+					ret, err = i.TeamTree(ctx, (*typedArgs)[0])
+					return
+				},
+				MethodType: rpc.MethodCall,
+			},
 			"loadTeamPlusApplicationKeys": {
 				MakeArg: func() interface{} {
 					ret := make([]LoadTeamPlusApplicationKeysArg, 1)
@@ -1377,6 +1435,11 @@ func (c TeamsClient) TeamRename(ctx context.Context, __arg TeamRenameArg) (err e
 
 func (c TeamsClient) TeamAcceptInvite(ctx context.Context, __arg TeamAcceptInviteArg) (err error) {
 	err = c.Cli.Call(ctx, "keybase.1.teams.teamAcceptInvite", []interface{}{__arg}, nil)
+	return
+}
+
+func (c TeamsClient) TeamTree(ctx context.Context, __arg TeamTreeArg) (res TeamTreeResult, err error) {
+	err = c.Cli.Call(ctx, "keybase.1.teams.teamTree", []interface{}{__arg}, &res)
 	return
 }
 

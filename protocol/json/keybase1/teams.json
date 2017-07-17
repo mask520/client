@@ -832,6 +832,33 @@
           "name": "chatSent"
         }
       ]
+    },
+    {
+      "type": "record",
+      "name": "TeamTreeResult",
+      "fields": [
+        {
+          "type": {
+            "type": "array",
+            "items": "TeamTreeEntry"
+          },
+          "name": "entries"
+        }
+      ]
+    },
+    {
+      "type": "record",
+      "name": "TeamTreeEntry",
+      "fields": [
+        {
+          "type": "TeamName",
+          "name": "name"
+        },
+        {
+          "type": "boolean",
+          "name": "admin"
+        }
+      ]
     }
   ],
   "messages": {
@@ -1021,6 +1048,19 @@
         }
       ],
       "response": null
+    },
+    "teamTree": {
+      "request": [
+        {
+          "name": "sessionID",
+          "type": "int"
+        },
+        {
+          "name": "name",
+          "type": "TeamName"
+        }
+      ],
+      "response": "TeamTreeResult"
     },
     "loadTeamPlusApplicationKeys": {
       "request": [
